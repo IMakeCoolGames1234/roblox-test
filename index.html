@@ -1,0 +1,1180 @@
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+   robloop
+  </title>
+  <link href="noob.png" rel="icon" type="image/png"/>
+  <style>
+   body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            cursor: none;
+        }
+        canvas {
+            display: block;
+        }
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        #customCursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            width: 96px;
+            height: 96px;
+            background-image: url('https://file.garden/ZqfDFw436UJIw7PE/ArrowCursor.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            transform: translate(-50%, -50%);
+        }
+        #healthBarContainer {
+            position: absolute;
+            top: 300px;
+            right: 20px;
+            width: 9px;
+            height: 86px;
+            background-color: #888;
+            z-index: 1000;
+        }
+        #healthBar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #00FF00;
+            transition: background-color 0.5s ease;
+        }
+        #healthText {
+            position: absolute;
+            top: 391px;
+            right: 10px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            color: blue;
+            font-size: 18px;
+            z-index: 1000;
+        }
+        .actionButton {
+            position: absolute;
+            top: 0;
+            height: 15px;
+            width: 100px;
+            background-color: rgba(128, 128, 128, 0.7);
+            border: none;
+            color: #444444;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 10px;
+            line-height: 15px;
+            padding: 0;
+        }
+        #button1, #button2 {
+            color: white;
+        }
+        #button1 { left: 0; }
+        #button2 { left: 100px; }
+        #button3 { left: 200px; }
+        #button4 { left: 300px; }
+        #button5 { left: 400px; }
+        #helpBox {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 400px;
+            background-color: rgba(128, 128, 128, 0.5);
+            z-index: 2000;
+            padding: 20px;
+            color: white;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        #closeHelp {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+        }
+        #leaderboard {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 105px;
+            height: 30px;
+            background-color: #a7abae;
+            opacity: 0.8;
+            padding: 10px;
+            color: white;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            z-index: 1000;
+            font-size: 12px;
+        }
+        .player-name {
+            color: white;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            margin-bottom: 3px;
+            font-size: 12px;
+            position: absolute;
+            bottom: 5px;
+            left: 3px;
+        }
+        #chatBar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            height: 15px;
+            background-color: #444444;
+            color: #FFFFFF;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-size: 12px;
+            padding: 0 10px 0 65px;
+            display: flex;
+            align-items: center;
+            z-index: 1001;
+            box-sizing: border-box;
+            border: none;
+            outline: none;
+        }
+        #chatMessages {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            width: 100vw;
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0);
+            color: white;
+            overflow-y: auto;
+            display: none;
+            z-index: 1001;
+            padding-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            max-height: calc(6 * 22px); /* Height for 6 messages */
+        }
+        .chatMessage {
+            padding: 2px 10px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-size: 12px;
+            background-color: rgba(68, 68, 68, 0.7);
+            margin: 0;
+            display: block;
+            width: fit-content;
+            text-shadow: none;
+        }
+        #chatAvatar {
+            position: absolute;
+            bottom: 14px;
+            left: 7px;
+            width: 60px;
+            height: 60px;
+            background-color: #a7abae;
+            opacity: 0.8;
+            z-index: 1002;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-size: 14px;
+        }
+        #blockSelector {
+            display: none;
+            position: absolute;
+            top: 15px;
+            left: 0;
+            background-color: rgba(128, 128, 128, 0.7);
+            padding: 5px;
+            z-index: 1001;
+        }
+        .blockOption {
+            width: 30px;
+            height: 30px;
+            margin: 2px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .blockOption.selected {
+            border-color: white;
+        }
+        .buildCursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            width: 48px; /* Increased size */
+            height: 48px; /* Increased size */
+            background-image: url('https://file.garden/ZqfDFw436UJIw7PE/ArrowCursor.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.7)); /* Added shadow for better visibility */
+            display: none; /* Changed from inline to none for initial state */
+        }
+  </style>
+ </head>
+ <body>
+  <div id="gameContainer">
+   <div id="customCursor">
+   </div>
+   <div id="healthBarContainer">
+    <div id="healthBar">
+    </div>
+   </div>
+   <div id="healthText">
+    Health
+   </div>
+   <button class="actionButton" id="button1">
+    Tools
+   </button>
+   <button class="actionButton" id="button2">
+    Insert
+   </button>
+   <button class="actionButton" id="button3">
+    Help?
+   </button>
+   <button class="actionButton" id="button4">
+    Fullscreen
+   </button>
+   <button class="actionButton" id="button5">
+    Exit
+   </button>
+   <div id="helpBox">
+    <div id="closeHelp">
+     ×
+    </div>
+    <h2>
+     Help
+    </h2>
+    <p>
+     WASD - Move character
+    </p>
+    <p>
+     Space - Jump
+    </p>
+    <p>
+     Right Click + Mouse - Rotate camera
+    </p>
+    <p>
+     Mouse Wheel - Zoom in/out
+    </p>
+   </div>
+   <div id="leaderboard">
+   </div>
+   <div id="chatAvatar">
+    Build
+   </div>
+   <div id="chatMessages">
+   </div>
+   <input id="chatBar" placeholder="To chat, click here or press the '/' key" type="text"/>
+   <div id="blockSelector">
+    <img alt="Red Block" class="blockOption" data-color="#ff0000" src="images/red_block.png"/>
+    <img alt="Blue Block" class="blockOption" data-color="#0000ff" src="images/blue_block.png"/>
+    <img alt="Green Block" class="blockOption" data-color="#00ff00" src="images/green_block.png"/>
+   </div>
+   <div class="buildCursor">
+   </div>
+  </div>
+  <script src="js/three.min.js">
+  </script>
+  <script src="js/GLTFLoader.js">
+  </script>
+  <script>
+   let scene, camera, renderer, character, characterModel;
+        let mixer, walkAction, idleAction, currentClipAction, jumpAction; // Add jumpAction here
+        let moveForward = false,
+            moveBackward = false,
+            moveLeft = false,
+            moveRight = false,
+            jump = false;
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        let rotation = new THREE.Vector2();
+        let clock = new THREE.Clock();
+        let isRightMouseDown = false;
+        let cameraOffset = new THREE.Vector3(0, 5, 10);
+        let lastFrameTime = 0;
+        const targetFPS = 60;
+        const frameInterval = 1000 / targetFPS;
+        const jumpForce = 8;
+        const gravity = -20;
+        let isJumping = false;
+        const mouseSensitivity = 0.004;
+        const speed = 8.0; // Increased walking speed
+        const rotationSpeed = 0.5; // Adjusted rotationSpeed
+        let currentRotation = 0;
+        let animationFrameId;
+        const commonColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FFA500', '#800080', '#008000', '#000080'];
+        let isChatting = false;
+        let chatMessages = [];
+        let username = "Player" + Math.floor(Math.random() * 9999 + 1);
+        let walkingSound;
+        let jumpSound;
+        let baseplateTexture;
+        let skyboxTexture;
+        let isFalling = false; // Indicates character is falling to its death (off map or below Y threshold)
+        let isRespawning = false; // Indicates character is in respawn cooldown
+        let fallStartTime = 0;
+        const FALL_DURATION = 7000; // How long before character "dies" after starting to fall
+        const RESPAWN_COOLDOWN = 5000; // How long before character respawns after "dying"
+        let respawnStartTime = 0;
+        let isBuilding = false;
+        let selectedBlockColor = "#ff0000";
+        let buildMode = false;
+        let blocks = [];
+        const BLOCK_SIZE = 1.2; // Define block size as a constant
+
+        // New global variables for click-to-move
+        let targetPosition = null; // THREE.Vector3 for the destination
+        let clickToMoveActive = false;
+        let destinationMarker; // The green circle for the clicked destination
+        let hoverMarker;     // The green circle for the hovered ground position
+
+        // Variables for character bobbing effect
+        let walkBobbingOffset = 0;
+        const walkBobbingSpeed = 8; // Speed of the bobbing motion
+        const walkBobbingAmplitude = 0.03; // Amplitude (height) of the bobbing motion
+
+        function getRandomColor() {
+            return commonColors[Math.floor(Math.random() * commonColors.length)];
+        }
+        function updateLeaderboard() {
+            const playerColor = getRandomColor();
+            const leaderboard = document.getElementById('leaderboard');
+            leaderboard.innerHTML = `
+                    <div>Player List:</div>
+                    <div class="player-name" style="color: ${playerColor}">${username}</div>
+                `;
+        }
+        function init() {
+            scene = new THREE.Scene();
+            const textureLoader = new THREE.TextureLoader();
+            skyboxTexture = textureLoader.load('SunlessFT.jpeg', function(texture) {
+                const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+                rt.fromEquirectangularTexture(renderer, texture);
+                scene.background = rt.texture;
+            });
+
+            walkingSound = new Audio('walk.mp3');
+            walkingSound.loop = true;
+            walkingSound.volume = 0.5;
+
+            jumpSound = new Audio('roblox-classic-jump.mp3');
+            jumpSound.loop = false;
+            jumpSound.volume = 0.5;
+
+            THREE.LinearFilter = true;
+            createBaseplate(scene);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('gameContainer').appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7);
+            directionalLight.castShadow = true;
+            // INCREASE SHADOW MAP RESOLUTION
+            directionalLight.shadow.mapSize.width = 8192;
+            directionalLight.shadow.mapSize.height = 8192;
+            // TIGHTER FRUSTUM FOR CLEARER SHADOWS
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = 60;
+            directionalLight.shadow.camera.left = -30;
+            directionalLight.shadow.camera.right = 30;
+            directionalLight.shadow.camera.top = 30;
+            directionalLight.shadow.camera.bottom = -30;
+            scene.add(directionalLight);
+
+            const pointLight = new THREE.PointLight(0xffa95c, 1, 50);
+            pointLight.position.set(-5, 10, -5);
+            scene.add(pointLight);
+
+            character = new THREE.Group();
+            character.position.set(0, 0.6, 0); // Adjusted initial Y position for smaller character, feet at Y=0
+            scene.add(character);
+            character.visible = true;
+
+            loadCharacterModel();
+            updateCameraPosition();
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+            renderer.domElement.addEventListener('mousemove', onMouseMove);
+            renderer.domElement.addEventListener('mousedown', onMouseDown); // Combined mouse down handler
+            renderer.domElement.addEventListener('mouseup', onMouseUp);
+            renderer.domElement.addEventListener('contextmenu', e => e.preventDefault());
+            renderer.domElement.addEventListener('wheel', onMouseWheel);
+            window.addEventListener('resize', onWindowResize, false);
+            document.getElementById('button4').addEventListener('click', toggleFullscreen);
+            document.getElementById('button3').addEventListener('click', toggleHelpBox);
+            document.getElementById('closeHelp').addEventListener('click', toggleHelpBox);
+            
+            // Create the destination marker (green circle)
+            const markerGeometry = new THREE.CircleGeometry(1, 32); // Radius 1, 32 segments
+            const markerMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00, transparent: false, opacity: 1, side: THREE.DoubleSide });
+            destinationMarker = new THREE.Mesh(markerGeometry, markerMaterial);
+            destinationMarker.rotation.x = -Math.PI / 2; // Rotate to lie flat on the ground
+            destinationMarker.visible = false; // Initially hidden
+            scene.add(destinationMarker);
+
+            // Create the hover marker (green circle for hover)
+            hoverMarker = new THREE.Mesh(markerGeometry, markerMaterial.clone()); // Use a clone of the material
+            hoverMarker.rotation.x = -Math.PI / 2;
+            hoverMarker.visible = false;
+            scene.add(hoverMarker);
+
+            updateLeaderboard();
+            initializeChat();
+            initializeBuildSystem();
+            animate();
+        }
+        function createBaseplate(targetScene) {
+            const baseplateGeometry = new THREE.BoxGeometry(100, 1, 100);
+            const textureLoader = new THREE.TextureLoader();
+            const baseplateTexture = textureLoader.load('Sin título.png', function(texture) {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(120, 120); // Decreased repeat to make "studs" bigger
+            });
+            const baseplateMaterial = new THREE.MeshPhongMaterial({
+                map: baseplateTexture,
+                color: 0xFFFFFF
+            });
+            const baseplate = new THREE.Mesh(baseplateGeometry, baseplateMaterial);
+            baseplate.position.y = -0.5;
+            baseplate.receiveShadow = true;
+            baseplate.name = 'baseplate';
+            targetScene.add(baseplate);
+        }
+        function loadCharacterModel() {
+            const loader = new THREE.GLTFLoader();
+            loader.load('2007guywithanims.glb', function(gltf) {
+                characterModel = gltf.scene;
+                characterModel.scale.set(0.6, 0.6, 0.6); // Made character smaller
+                characterModel.position.y = -0.6; // Adjusted Robloxian's vertical offset for new scale
+                characterModel.rotation.y = 0; // Rotated the model by 180 degrees from its previous setting
+                characterModel.position.z = 0.0; // Offset Mario model slightly further forward relative to the character group's origin
+                characterModel.visible = true;
+                character.add(characterModel);
+
+                // Setup animations
+                mixer = new THREE.AnimationMixer(characterModel);
+                if (gltf.animations.length > 0) {
+                    let foundWalkClip = gltf.animations.find(clip => clip.name.toLowerCase().includes('walk') || clip.name.toLowerCase().includes('run'));
+                    let foundIdleClip = gltf.animations.find(clip => clip.name.toLowerCase().includes('idle'));
+                    let foundJumpClip = gltf.animations.find(clip => clip.name.toLowerCase().includes('jump')); // Find jump clip
+
+                    // Assign walkAction
+                    if (foundWalkClip) {
+                        walkAction = mixer.clipAction(foundWalkClip);
+                    } else if (gltf.animations.length > 0) {
+                        // If no named walk/run, use the first available animation as walk
+                        walkAction = mixer.clipAction(gltf.animations[0]);
+                    }
+                    if (walkAction) {
+                        walkAction.setLoop(THREE.LoopRepeat);
+                        walkAction.setEffectiveTimeScale(2.0); // Make walk animation faster
+                    }
+
+                    // Assign idleAction
+                    if (foundIdleClip) {
+                        idleAction = mixer.clipAction(foundIdleClip);
+                    } else if (gltf.animations.length > 1) {
+                        // If no named idle, and there's a second animation, use it as idle
+                        idleAction = mixer.clipAction(gltf.animations[1]);
+                    } else if (gltf.animations.length > 0) {
+                        // If only one animation (and no specific idle name), use the first animation for idle too
+                        idleAction = mixer.clipAction(gltf.animations[0]);
+                    }
+                    if (idleAction) {
+                        idleAction.setLoop(THREE.LoopRepeat);
+                        idleAction.setEffectiveTimeScale(2.0); // Make idle animation faster
+                    }
+
+                    // Assign jumpAction
+                    if (foundJumpClip) {
+                        jumpAction = mixer.clipAction(foundJumpClip);
+                        jumpAction.setLoop(THREE.LoopOnce); // Play once
+                        jumpAction.clampWhenFinished = true; // Hold the last frame
+                        jumpAction.setEffectiveTimeScale(2.0); // Make jump animation faster
+                    }
+
+                    // Set initial animation to idle, or walk if idle is not found but walk is.
+                    currentClipAction = idleAction || walkAction; // Prefer idle, fallback to walk
+                    if (currentClipAction) currentClipAction.play();
+                }
+
+                characterModel.traverse(node => {
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+                    }
+                });
+                cameraOffset.set(0, 8.0, 8.0); // Adjusted camera for smaller character and default zoom distance, and made it higher
+                updateCameraPosition();
+
+                // Add event listener for animation finished
+                mixer.addEventListener('finished', (e) => {
+                    if (e.action === jumpAction) {
+                        // After jump, if not moving, go to idle, otherwise to walk
+                        if (!moveForward && !moveBackward && !moveLeft && !moveRight && !clickToMoveActive) {
+                            if (mixer && idleAction) { // Ensure mixer and idleAction exist
+                                switchAnimation(idleAction);
+                            }
+                        } else { // If there's horizontal movement, switch to walk
+                            if (mixer && walkAction) { // Ensure mixer and walkAction exist
+                                switchAnimation(walkAction);
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        // Helper function to switch animations smoothly
+        function switchAnimation(newAction) {
+            if (!newAction || newAction === currentClipAction) {
+                return; // Do nothing if new action is null/undefined or already playing
+            }
+
+            const oldAction = currentClipAction;
+            currentClipAction = newAction;
+
+            if (oldAction) {
+                oldAction.fadeOut(0.2); // Fade out old animation
+            }
+            newAction.reset().fadeIn(0.2).play(); // Fade in new animation
+        }
+        function onWindowResize() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            if (skyboxTexture) {
+                const rt = new THREE.WebGLCubeRenderTarget(skyboxTexture.image.height);
+                rt.fromEquirectangularTexture(renderer, skyboxTexture);
+                scene.background = rt.texture;
+            }
+            renderer.setPixelRatio(window.devicePixelRatio);
+        }
+        function onKeyDown(event) {
+            if (event.key === '/') {
+                event.preventDefault();
+                document.getElementById('chatBar').focus();
+                return; // Do not process movement keys if '/' is pressed
+            }
+
+            if (!isChatting) {
+                // If WASD is pressed, cancel click-to-move
+                if (event.code === 'KeyW' || event.code === 'KeyA' || event.code === 'KeyS' || event.code === 'KeyD') {
+                    clickToMoveActive = false;
+                    destinationMarker.visible = false;
+                    // Stop any ongoing walking sound from click-to-move if no WASD movement is active
+                    if (!moveForward && !moveBackward && !moveLeft && !moveRight) {
+                        walkingSound.pause();
+                        walkingSound.currentTime = 0;
+                        if (mixer && idleAction) switchAnimation(idleAction);
+                    }
+                }
+
+                switch (event.code) {
+                    case 'KeyW':
+                        moveForward = true;
+                        break;
+                    case 'KeyA':
+                        moveLeft = true;
+                        break;
+                    case 'KeyS':
+                        moveBackward = true;
+                        break;
+                    case 'KeyD':
+                        moveRight = true;
+                        break;
+                    case 'Space':
+                        jump = true;
+                        break;
+                }
+            }
+        }
+        function onKeyUp(event) {
+            switch (event.code) {
+                case 'KeyW':
+                    moveForward = false;
+                    break;
+                case 'KeyA':
+                    moveLeft = false;
+                    break;
+                case 'KeyS':
+                    moveBackward = false;
+                    break;
+                case 'KeyD':
+                    moveRight = false;
+                    break;
+                case 'Space':
+                    jump = false;
+                    break;
+            }
+            if (!moveForward && !moveBackward && !moveLeft && !moveRight && !clickToMoveActive) {
+                walkingSound.pause();
+                walkingSound.currentTime = 0;
+            }
+        }
+        function onMouseDown(event) {
+            if (event.button === 2) { // Right click for camera rotation or block removal
+                if (buildMode) {
+                    onBuildClick(event); // This function will now handle both left and right clicks
+                } else {
+                    isRightMouseDown = true;
+                }
+            } else if (event.button === 0) { // Left click for build or click-to-move
+                if (buildMode) {
+                    onBuildClick(event);
+                } else {
+                    // Normal game mode: initiate click-to-move
+                    const raycaster = new THREE.Raycaster();
+                    const mouse = new THREE.Vector2();
+
+                    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                    raycaster.setFromCamera(mouse, camera);
+
+                    // Intersect with baseplate and existing blocks
+                    const objectsToIntersect = [scene.getObjectByName('baseplate'), ...blocks];
+                    const intersects = raycaster.intersectObjects(objectsToIntersect, true);
+
+                    if (intersects.length > 0) {
+                        const intersect = intersects[0];
+                        const intersectPoint = intersect.point;
+                        const intersectedObject = intersect.object;
+
+                        let targetCharacterY;
+                        // Character's origin is 0.6 units above its feet (character.position.y represents this point)
+                        const characterFeetToOriginOffset = 0.6; 
+
+                        // Determine the target Y for the character group's origin
+                        if (intersectedObject.name === 'baseplate') {
+                            // Baseplate's top surface is at Y=0. So character's Y should be 0 + offset.
+                            targetCharacterY = characterFeetToOriginOffset;
+                        } else {
+                            // If a block is clicked, its top surface is at block.position.y + BLOCK_SIZE/2.
+                            // Character's Y should be this surface level + offset.
+                            targetCharacterY = intersectedObject.position.y + (BLOCK_SIZE / 2) + characterFeetToOriginOffset;
+                        }
+                        
+                        targetPosition = new THREE.Vector3(intersectPoint.x, targetCharacterY, intersectPoint.z);
+                        clickToMoveActive = true;
+                        destinationMarker.position.set(intersectPoint.x, intersectPoint.y + 0.05, intersectPoint.z); // Slightly above ground
+                        destinationMarker.visible = true;
+
+                        // Stop any current WASD movement
+                        moveForward = false;
+                        moveBackward = false;
+                        moveLeft = false;
+                        moveRight = false;
+                        walkingSound.pause();
+                        walkingSound.currentTime = 0;
+                    } else {
+                        // If clicked on nothing, clear target and hide marker
+                        clickToMoveActive = false;
+                        destinationMarker.visible = false;
+                    }
+                }
+            }
+        }
+        function onMouseUp(event) {
+            if (event.button === 2) {
+                isRightMouseDown = false;
+            }
+        }
+        function onMouseMove(event) {
+            const customCursor = document.getElementById('customCursor');
+            const buildCursor = document.querySelector('.buildCursor');
+
+            // Update UI cursors' positions
+            customCursor.style.left = event.clientX + 'px';
+            customCursor.style.top = event.clientY + 'px';
+            buildCursor.style.left = event.clientX + 'px';
+            buildCursor.style.top = event.clientY + 'px';
+            
+            if (isRightMouseDown) {
+                rotation.y -= event.movementX * mouseSensitivity;
+                rotation.x -= event.movementY * mouseSensitivity;
+                rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotation.x));
+                updateCameraPosition();
+                hoverMarker.visible = false; // Hide hover marker while rotating camera
+            } else {
+                // Raycast for hover marker only if not in build mode
+                if (!buildMode) {
+                    const raycaster = new THREE.Raycaster();
+                    const mouse = new THREE.Vector2();
+
+                    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                    raycaster.setFromCamera(mouse, camera);
+
+                    // Check for intersections with baseplate and existing blocks
+                    const objectsToIntersect = [scene.getObjectByName('baseplate'), ...blocks];
+                    const intersects = raycaster.intersectObjects(objectsToIntersect, true);
+
+                    if (intersects.length > 0) {
+                        const intersectPoint = intersects[0].point;
+                        hoverMarker.position.set(intersectPoint.x, intersectPoint.y + 0.05, intersectPoint.z); // Slightly above ground
+                        hoverMarker.visible = true;
+                    } else {
+                        hoverMarker.visible = false;
+                    }
+                } else {
+                    hoverMarker.visible = false; // Hide hover marker if in build mode
+                }
+            }
+        }
+        function onMouseWheel(event) {
+            const zoomSpeed = 0.1;
+            cameraOffset.z += event.deltaY * zoomSpeed;
+            cameraOffset.z = Math.max(0.1, Math.min(30, cameraOffset.z)); // Clamped for Roblox 2008 zoom feel, allowing closer zoom
+            updateCameraPosition();
+        }
+        function updateCameraPosition() {
+            const offset = cameraOffset.clone();
+            offset.applyAxisAngle(new THREE.Vector3(1, 0, 0), rotation.x);
+            offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), rotation.y);
+            camera.position.copy(character.position).add(offset);
+            camera.lookAt(character.position.clone().add(new THREE.Vector3(0, 1.5, 0))); // Look at a point 1.5 units above character's origin
+        }
+        function checkBlockCollisions() {
+            const characterBoundingBox = new THREE.Box3().setFromObject(character);
+            // Removed redundant/incorrect adjustments for characterBoundingBox
+
+            for (const block of blocks) {
+                const blockBoundingBox = new THREE.Box3().setFromObject(block);
+
+                if (characterBoundingBox.intersectsBox(blockBoundingBox)) {
+                    // Get overlap amounts in each direction
+                    const xOverlap = Math.min(
+                        Math.abs(characterBoundingBox.max.x - blockBoundingBox.min.x),
+                        Math.abs(characterBoundingBox.min.x - blockBoundingBox.max.x)
+                    );
+                    const yOverlap = Math.min(
+                        Math.abs(characterBoundingBox.max.y - blockBoundingBox.min.y),
+                        Math.abs(characterBoundingBox.min.y - blockBoundingBox.max.y)
+                    );
+                    const zOverlap = Math.min(
+                        Math.abs(characterBoundingBox.max.z - blockBoundingBox.min.z),
+                        Math.abs(characterBoundingBox.min.z - blockBoundingBox.max.z)
+                    );
+
+                    // Find smallest overlap to determine push direction
+                    if (xOverlap < yOverlap && xOverlap < zOverlap) {
+                        // X-axis collision
+                        if (character.position.x < block.position.x) {
+                            character.position.x = blockBoundingBox.min.x - 0.85; // Adjusted push-out
+                        } else {
+                            character.position.x = blockBoundingBox.max.x + 0.85; // Adjusted push-out
+                        }
+                    } else if (yOverlap < xOverlap && yOverlap < zOverlap) {
+                        // Y-axis collision
+                        if (velocity.y < 0) { // Character is falling onto the block
+                            character.position.y = blockBoundingBox.max.y + 0.6; // Adjusted character's Y for landing (feet at block top)
+                            velocity.y = 0;
+                            isJumping = false;
+                        } else if (velocity.y > 0) { // Character is jumping into the bottom of the block
+                            character.position.y = blockBoundingBox.min.y - 0.6; // Adjusted character's Y for hitting bottom of block (origin 0.6 below block min)
+                            velocity.y = 0; // Stop upward movement
+                        }
+                    } else {
+                        // Z-axis collision
+                        if (character.position.z < block.position.z) {
+                            character.position.z = blockBoundingBox.min.z - 0.85; // Adjusted push-out
+                        } else {
+                            character.position.z = blockBoundingBox.max.z + 0.85; // Adjusted push-out
+                        }
+                    }
+                }
+            }
+        }
+        function animate(currentTime) {
+            const animationFrameId = requestAnimationFrame(animate);
+            if (currentTime - lastFrameTime < frameInterval) {
+                return;
+            }
+            lastFrameTime = currentTime - currentTime % frameInterval;
+
+            const delta = Math.min(clock.getDelta(), 0.1);
+
+            if (mixer) {
+                mixer.update(delta);
+            }
+
+            // Apply gravity to vertical velocity
+            velocity.y += gravity * delta;
+
+            // Calculate desired horizontal movement
+            let horizontalMoveDelta = new THREE.Vector3();
+
+            // Click-to-move logic
+            if (clickToMoveActive && targetPosition) {
+                const distanceToTarget = character.position.distanceTo(targetPosition);
+                if (distanceToTarget < 0.5) { // Character is close enough to target
+                    clickToMoveActive = false;
+                    destinationMarker.visible = false;
+                    walkingSound.pause();
+                    walkingSound.currentTime = 0;
+                    if (mixer && idleAction) switchAnimation(idleAction);
+                } else {
+                    direction.subVectors(targetPosition, character.position);
+                    direction.y = 0; // Only horizontal movement
+                    direction.normalize();
+                    horizontalMoveDelta.copy(direction).multiplyScalar(speed * delta);
+
+                    const targetRotation = Math.atan2(-direction.x, -direction.z);
+                    let rotationDiff = targetRotation - currentRotation;
+                    if (rotationDiff > Math.PI) rotationDiff -= Math.PI * 2;
+                    if (rotationDiff < -Math.PI) rotationDiff += Math.PI * 2;
+                    currentRotation += rotationDiff * rotationSpeed;
+                    character.rotation.y = currentRotation;
+
+                    if (walkingSound.paused && !isJumping) {
+                        walkingSound.play().catch(error => console.log("Audio play failed:", error));
+                    }
+                    if (mixer && walkAction) switchAnimation(walkAction);
+                }
+            } else { // WASD movement logic
+                direction.set(0, 0, 0);
+                if (moveForward) direction.z -= 1;
+                if (moveBackward) direction.z += 1;
+                if (moveLeft) direction.x -= 1;
+                if (moveRight) direction.x += 1;
+
+                if (direction.lengthSq() > 0) {
+                    direction.normalize();
+                    direction.applyAxisAngle(new THREE.Vector3(0, 1, 0), rotation.y);
+                    horizontalMoveDelta.copy(direction).multiplyScalar(speed * delta);
+
+                    if (walkingSound.paused && !isJumping) {
+                        walkingSound.play().catch(error => console.log("Audio play failed:", error));
+                    }
+                    if (mixer && walkAction) switchAnimation(walkAction);
+
+                    const targetRotation = Math.atan2(-direction.x, -direction.z);
+                    const rotationDiff = targetRotation - currentRotation;
+                    let adjustedRotationDiff = rotationDiff;
+                    if (rotationDiff > Math.PI) adjustedRotationDiff -= Math.PI * 2;
+                    if (adjustedRotationDiff < -Math.PI) adjustedRotationDiff += Math.PI * 2;
+                    currentRotation += adjustedRotationDiff * rotationSpeed;
+                    if (currentRotation > Math.PI) currentRotation -= Math.PI * 2;
+                    if (currentRotation < -Math.PI) currentRotation += Math.PI * 2;
+                    character.rotation.y = currentRotation;
+                } else {
+                    walkingSound.pause();
+                    walkingSound.currentTime = 0;
+                    if (mixer && idleAction) switchAnimation(idleAction);
+                }
+            }
+
+            // Jump logic (applies to both movement modes)
+            if (jump && !isJumping) {
+                velocity.y = jumpForce;
+                isJumping = true;
+                jumpSound.currentTime = 0;
+                jumpSound.play().catch(error => console.log("Jump audio play failed:", error));
+                if (mixer && jumpAction) {
+                    switchAnimation(jumpAction);
+                } else if (mixer && idleAction) {
+                     currentClipAction.stop(); // Stop current animation
+                }
+            }
+
+            // Apply movement
+            character.position.x += horizontalMoveDelta.x;
+            character.position.z += horizontalMoveDelta.z;
+            character.position.y += velocity.y * delta; // Apply vertical velocity
+
+            // --- Check for "Death Fall" Condition ---
+            const baseplate = scene.getObjectByName('baseplate');
+            let shouldStartFallingToDeath = false;
+            if (baseplate) {
+                const baseplateBox = new THREE.Box3().setFromObject(baseplate);
+                // Add a small buffer around the baseplate for X/Z bounds
+                const minX = baseplateBox.min.x - 1;
+                const maxX = baseplateBox.max.x + 1;
+                const minZ = baseplateBox.min.z - 1;
+                const maxZ = baseplateBox.max.z + 1;
+
+                const charX = character.position.x;
+                const charZ = character.position.z;
+
+                const isOutOfBoundsHorizontally = charX < minX || charX > maxX || charZ < minZ || charZ > maxZ;
+                const isBelowWorldThreshold = character.position.y < -50; // Y threshold for falling into abyss
+
+                // If not already in 'death fall' state, check if we should enter it
+                if (!isFalling && !isRespawning) {
+                    if (isOutOfBoundsHorizontally || isBelowWorldThreshold) {
+                        shouldStartFallingToDeath = true;
+                    }
+                }
+            }
+
+            if (shouldStartFallingToDeath) {
+                isFalling = true;
+                fallStartTime = currentTime;
+                // Stop all horizontal movement and clear inputs
+                walkingSound.pause();
+                walkingSound.currentTime = 0;
+                if (mixer && idleAction) switchAnimation(idleAction);
+                clickToMoveActive = false;
+                destinationMarker.visible = false;
+                moveForward = moveBackward = moveLeft = moveRight = false;
+                // Do NOT reset velocity.y here. Let character continue to fall naturally due to gravity.
+            }
+
+            // --- Handle ground collision and block collisions (ONLY if not in "death fall" state) ---
+            if (!isFalling) {
+                // Check ground collision with the baseplate
+                if (baseplate) {
+                    const baseplateBox = new THREE.Box3().setFromObject(baseplate);
+                    // Adjusted ground Y level for character group origin (character's feet should be at baseplate's max.y + 0.6)
+                    const groundYLevelForCharacterOrigin = baseplateBox.max.y + 0.6; // Feet at baseplate top (Y=0), origin 0.6 above
+
+                    if (character.position.y <= groundYLevelForCharacterOrigin) {
+                        character.position.y = groundYLevelForCharacterOrigin;
+                        if (velocity.y < 0) { // Only reset if falling downwards
+                            velocity.y = 0;
+                            isJumping = false;
+                            // Reset animation based on current horizontal movement
+                            if (!moveForward && !moveBackward && !moveLeft && !moveRight && !clickToMoveActive) {
+                                if (mixer && idleAction) switchAnimation(idleAction);
+                            } else {
+                                if (mixer && walkAction) switchAnimation(walkAction);
+                            }
+                        }
+                    }
+                }
+                checkBlockCollisions(); // Existing block collision logic for regular gameplay
+            }
+
+            // --- Manage "Death Fall" Timer and Respawn ---
+            if (isFalling && !isRespawning) {
+                if (currentTime - fallStartTime >= FALL_DURATION) {
+                    isRespawning = true;
+                    respawnStartTime = performance.now(); // Use performance.now() for consistency
+                    document.getElementById('healthBar').style.backgroundColor = '#FF0000';
+                    character.visible = false; // Hide character when "dead"
+                    if (characterModel) characterModel.visible = false;
+                    // Clear any lingering sounds/states for a clean respawn
+                    walkingSound.pause();
+                    walkingSound.currentTime = 0;
+                }
+            }
+
+            if (isRespawning) {
+                if (performance.now() - respawnStartTime >= RESPAWN_COOLDOWN) {
+                    character.position.set(0, 0.6, 0); // Respawn at initial position
+                    character.visible = true;
+                    if (characterModel) characterModel.visible = true;
+                    document.getElementById('healthBar').style.backgroundColor = '#00FF00';
+                    velocity.y = 0; // Ensure no lingering vertical velocity
+                    isFalling = false; // Reset fall state
+                    isJumping = false; // Reset jump state
+                    isRespawning = false; // Reset respawn state
+                    clickToMoveActive = false; // Clear any click-to-move target
+                    destinationMarker.visible = false;
+                    // Set to idle animation after respawn
+                    if (mixer && idleAction) switchAnimation(idleAction);
+                }
+            }
+
+            // Apply character model vertical bobbing when walking (only when not jumping/falling to death)
+            if (characterModel) {
+                let modelYOffset = -0.6; // Base offset for the model within the character group
+
+                // Apply bobbing only if moving and not jumping or falling
+                const isMovingHorizontally = (moveForward || moveBackward || moveLeft || moveRight || clickToMoveActive) && !isJumping && !isFalling;
+
+                if (isMovingHorizontally) {
+                    // Removed the bobbing effect as per user request
+                }
+                characterModel.position.y = modelYOffset;
+            }
+
+            updateCameraPosition();
+            renderer.render(scene, camera);
+        }
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+        function toggleHelpBox() {
+            const helpBox = document.getElementById('helpBox');
+            helpBox.style.display = helpBox.style.display === 'none' ? 'block' : 'none';
+        }
+        function initializeChat() {
+            const chatBar = document.getElementById('chatBar');
+            chatBar.style.width = window.innerWidth + 'px';
+            const chatMessagesDiv = document.getElementById('chatMessages');
+            chatBar.addEventListener('focus', () => {
+                isChatting = true;
+                chatMessagesDiv.style.display = 'block';
+            });
+            chatBar.addEventListener('blur', () => {
+                isChatting = false;
+                chatBar.value = '';
+                setTimeout(() => {
+                    if (!isChatting) {
+                        chatMessagesDiv.style.display = 'none';
+                    }
+                }, 200);
+            });
+            chatBar.addEventListener('keypress', event => {
+                if (event.key === 'Enter' && chatBar.value.trim()) {
+                    const message = chatBar.value.trim();
+                    addChatMessage(`${username}: ${message}`);
+                    chatBar.value = '';
+                }
+            });
+        }
+        function addChatMessage(message) {
+            chatMessages.push(message);
+            if (chatMessages.length > 6) {
+                chatMessages = chatMessages.slice(-6);
+            }
+            const chatMessagesDiv = document.getElementById('chatMessages');
+            chatMessagesDiv.innerHTML = '';
+            for (const msg of chatMessages) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'chatMessage';
+                const leaderboardDiv = document.getElementById('leaderboard');
+                const playerNameDiv = leaderboardDiv.querySelector('.player-name');
+                const playerColor = playerNameDiv.style.color;
+                if (msg.startsWith(`${username}:`)) {
+                    const parts = msg.split(':');
+                    messageElement.innerHTML = `<span style="color: ${playerColor}; text-shadow: none;">${parts[0]}</span>:${parts[1]}`;
+                } else {
+                    messageElement.textContent = msg;
+                }
+                chatMessagesDiv.appendChild(messageElement);
+            }
+            chatMessagesDiv.style.width = window.innerWidth + 'px';
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+        }
+        function initializeBuildSystem() {
+            const blockSelector = document.getElementById('blockSelector');
+            const buildCursor = document.querySelector('.buildCursor');
+            const chatAvatar = document.getElementById('chatAvatar');
+
+            chatAvatar.addEventListener('click', () => {
+                buildMode = !buildMode;
+
+                // Use classList for better performance
+                blockSelector.classList.toggle('active', buildMode);
+                buildCursor.classList.toggle('active', buildMode); // Use toggle with second argument
+
+                // Manually set display based on buildMode state
+                blockSelector.style.display = buildMode ? 'block' : 'none';
+                buildCursor.style.display = buildMode ? 'block' : 'none';
+                document.getElementById('customCursor').style.display = buildMode ? 'none' : 'block';
+                chatAvatar.style.backgroundColor = buildMode ? '#666666' : '#a7abae';
+                hoverMarker.visible = false; // Hide hover marker when toggling build mode
+            });
+
+            const blockOptions = document.querySelectorAll('.blockOption');
+            blockOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    blockOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedBlockColor = option.dataset.color;
+                });
+            });
+        }
+        function onBuildClick(event) {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            // Get all interactive objects: existing blocks and the baseplate
+            const interactiveObjects = [...blocks, scene.getObjectByName('baseplate')];
+            const intersects = raycaster.intersectObjects(interactiveObjects, true);
+
+            if (intersects.length > 0) {
+                const intersectedObject = intersects[0].object;
+
+                if (event.button === 0) { // Left click: place block
+                    const intersectPoint = intersects[0].point;
+                    const normal = intersects[0].face.normal;
+
+                    // Calculate the precise center of where the new block should be, based on the intersected face
+                    const preciseBlockCenter = intersectPoint.clone().add(normal.clone().multiplyScalar(BLOCK_SIZE / 2)); // Use global BLOCK_SIZE
+
+                    // Snap this precise center to the nearest grid point,
+                    // ensuring its coordinates are at X.5, Y.5, Z.5 for a 1x1x1 block
+                    const x = Math.floor(preciseBlockCenter.x / BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE / 2; // Use global BLOCK_SIZE
+                    const y = Math.floor(preciseBlockCenter.y / BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE / 2; // Use global BLOCK_SIZE
+                    const z = Math.floor(preciseBlockCenter.z / BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE / 2; // Use global BLOCK_SIZE
+
+                    // Create block
+                    const geometry = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); // Use global BLOCK_SIZE
+                    const material = new THREE.MeshPhongMaterial({ color: selectedBlockColor });
+                    const block = new THREE.Mesh(geometry, material);
+
+                    block.position.set(x, y, z);
+                    block.castShadow = true;
+                    block.receiveShadow = true;
+
+                    scene.add(block);
+                    blocks.push(block);
+                } else if (event.button === 2) { // Right click: remove block
+                    if (intersectedObject.name !== 'baseplate') { // Prevent removing the baseplate
+                        // Find the actual block object from the `blocks` array
+                        // The intersectedObject might be a child mesh of the block group if the model had multiple parts.
+                        // For simple box geometries, intersectedObject itself will be the block.
+                        const blockToRemove = blocks.find(b => b === intersectedObject);
+
+                        if (blockToRemove) {
+                            scene.remove(blockToRemove);
+                            blocks = blocks.filter(b => b !== blockToRemove);
+                        }
+                    }
+                }
+            }
+        }
+
+        document.getElementById('button5').addEventListener('click', function () {
+            // No need to cancel animation frame or dispose renderer if redirecting the whole page
+            // cancelAnimationFrame(animationFrameId);
+            // renderer.setAnimationLoop(null);
+            // renderer.dispose();
+            // document.getElementById('gameContainer').innerHTML = '';
+            window.location.href = 'https://robloop.neocities.org/games';
+        });
+
+        // initializeChat is called inside init()
+        init();
+  </script>
+ </body>
+</html>
