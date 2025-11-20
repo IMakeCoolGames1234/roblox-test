@@ -227,6 +227,13 @@
   </style>
  </head>
  <body>
+
+
+
+
+
+
+
   <div id="gameContainer">
    <div id="customCursor">
    </div>
@@ -277,6 +284,7 @@
    <div id="chatAvatar">
     Build
    </div>
+                         <img id="centeredImage" src="https://github.com/IMakeCoolGames1234/chcashvavchjvdj-vgcdvavj-jcdjvhacdvhjcdgj.-dwgj/blob/main/download_-_2025-11-20T190642.209-removebg-preview.png?raw=true" rel="icon" type="image/png"/>
    <div id="chatMessages">
    </div>
    <input id="chatBar" placeholder="To chat, click here or press the '/' key" type="text"/>
@@ -1145,7 +1153,6 @@
                     block.position.set(x, y, z);
                     block.castShadow = true;
                     block.receiveShadow = true;
-
                     scene.add(block);
                     blocks.push(block);
                 } else if (event.button === 2) { // Right click: remove block
@@ -1158,6 +1165,7 @@
                         if (blockToRemove) {
                             scene.remove(blockToRemove);
                             blocks = blocks.filter(b => b !== blockToRemove);
+               
                         }
                     }
                 }
@@ -1176,5 +1184,7 @@
         // initializeChat is called inside init()
         init();
   </script>
+ 
  </body>
+ 
 </html>
